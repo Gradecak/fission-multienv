@@ -1,0 +1,29 @@
+# Maybewhale that shows off how a if-condition works in a workflow
+#
+# Usage examples:
+# fission fn test --name maybewhale -b 'a whale can say it!'
+# fission fn test --name maybewhale -b 'This sentence is far to complex for a whale!'
+apiVersion: 1
+output: PassAlong
+tasks:
+  InternalFuncShowoff:
+    run: noop
+    inputs: "{$.Invocation.Inputs.default}"
+
+  IfShortEnough:
+    run: if
+    inputs:
+      if: "{$.Invocation.Inputs.default.length < 20}"
+      then:
+        run: whalesay
+        inputs:
+          body: "{$.Tasks.InternalFuncShowoff.Output}"
+      else: "{$.Tasks.InternalFuncShowoff.Output}"
+    requires:
+    - InternalFuncShowoff
+
+  PassAlong:
+    run: compose
+    inputs: "{$.Tasks.IfShortEnough.Output}"
+    requires:
+    - IfShortEnough

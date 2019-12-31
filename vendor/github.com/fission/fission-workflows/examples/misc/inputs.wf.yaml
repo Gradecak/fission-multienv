@@ -1,0 +1,14 @@
+# Inputs simply prints the inputs it received, including body, query params and headers.
+# This is a useful workflow for debugging or providing an overview of the inputs
+#
+# Example usage: fission fn test --name inputs -H 'Content-Type: application/json'
+#
+# Note: you need to add the json content-type to signal the workflow to parse and output the data
+# as JSON, otherwise it will output the values as plain text.
+# In the future there will be an option to default the output to JSON.
+apiVersion: 1
+output: Printer
+tasks:
+  Printer:
+    run: compose
+    inputs: "{ $.Invocation.Inputs }"

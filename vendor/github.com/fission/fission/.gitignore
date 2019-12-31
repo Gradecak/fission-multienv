@@ -1,0 +1,17 @@
+fission-bundle/fission-bundle
+fission/fission
+environments/fetcher/cmd/fetcher
+
+# Pycharm IDE
+.idea
+environments/php7/vendor/
+
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*~
+
+.DS_Store
+vendor/
+local/

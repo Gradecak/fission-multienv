@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+package fission.workflows.apiserver;
+option go_package = "apiserver";
+
+import "github.com/fission/fission-workflows/pkg/types/types.proto";
+import "github.com/fission/fission-workflows/pkg/version/version.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+
+service WorkflowAPI {
+    rpc Create (fission.workflows.types.WorkflowSpec) returns (fission.workflows.types.ObjectMetadata) {
+        option (google.api.http) = {
+           post: "/workflow"
+           body: "*"
+        };
+    }
+
+    rpc List (google.protobuf.Empty) returns (WorkflowList) {
+        option (google.api.http) = {
+            get: "/workflow"
+        };
+    }
+
+    rpc Get (fission.workflows.types.ObjectMetadata) returns (fission.workflows.types.Workflow) {
+        option (google.api.http) = {
+            get: "/workflow/{id}"
+        };
+    }
+
+
+    rpc Delete (fission.workflows.types.ObjectMetadata) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/workflow/{id}"
+        };
+    }
+
+    rpc Validate (fission.workflows.types.WorkflowSpec) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/workflow/validate"
+            body: "*"
+        };
+    }
+}
+
+message WorkflowList {
+    repeated string workflows = 1;
+}
+
+// The WorkflowInvocationAPI specifies the the externally exposed actions available for workflow invocations.
+service WorkflowInvocationAPI {
+
+    // Create a new workflow invocation
+    //
+    // In case the invocation specification is missing fields or contains invalid fields, a HTTP 400 is returned.
+    rpc Invoke (fission.workflows.types.WorkflowInvocationSpec) returns (fission.workflows.types.ObjectMetadata) {
+        option (google.api.http) = {
+            post: "/invocation"
+            body: "*"
+        };
+    }
+
+    rpc InvokeSync (fission.workflows.types.WorkflowInvocationSpec) returns (fission.workflows.types.WorkflowInvocation) {
+        option (google.api.http) = {
+            post: "/invocation/sync"
+            body: "*"
+            additional_bindings {
+                get: "/invocation/sync"
+			}
+        };
+    }
+
+    rpc AddTask (AddTaskRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/invocation/{invocationID}/tasks"
+            body: "*"
+            additional_bindings {
+                put: "/invocation/{invocationID}/tasks"
+			}
+        };
+    }
+
+    // Cancel a workflow invocation
+    //
+    // This action is irreverisble. A canceled invocation cannot be resumed or restarted.
+    // In case that an invocation already is canceled, has failed or has completed, nothing happens.
+    // In case that an invocation does not exist a HTTP 404 error status is returned.
+    rpc Cancel (fission.workflows.types.ObjectMetadata) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/invocation/{id}"
+        };
+    }
+
+    rpc List (InvocationListQuery) returns (WorkflowInvocationList) {
+        option (google.api.http) = {
+            get: "/invocation"
+        };
+    }
+
+    // Get the specification and status of a workflow invocation
+    //
+    // Get returns three different aspects of the workflow invocation, namely the spec (specification), status and logs.
+    // To lighten the request load, consider using a more specific request.
+    rpc Get (fission.workflows.types.ObjectMetadata) returns (fission.workflows.types.WorkflowInvocation) {
+        option (google.api.http) = {
+            get: "/invocation/{id}"
+        };
+    }
+
+    rpc Validate (fission.workflows.types.WorkflowInvocationSpec) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/invocation/validate"
+            body: "*"
+        };
+    }
+}
+
+message AddTaskRequest {
+    string invocationID = 1;
+    fission.workflows.types.Task task = 2;
+}
+
+message InvocationListQuery {
+    repeated string workflows = 1;
+}
+
+message WorkflowInvocationList {
+    repeated string invocations = 1;
+}
+
+service AdminAPI {
+    rpc Status (google.protobuf.Empty) returns (Health) {
+        option (google.api.http) = {
+            get: "/healthz"
+        };
+    }
+
+    rpc Version (google.protobuf.Empty) returns (fission.workflows.version.Info) {
+        option (google.api.http) = {
+            get: "/version"
+        };
+    }
+}
+
+message Health {
+    string status = 1;
+}

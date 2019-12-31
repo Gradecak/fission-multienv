@@ -1,0 +1,16 @@
+output: WhaleSay
+tasks:
+  InputOrFortune:
+    run: if
+    inputs:
+      if: "{ !!param() }"
+      then: "{ param().trim() }"
+      else: 
+        run: fortune
+
+  WhaleSay:
+    run: whalesay
+    inputs:
+      body: "{ output('InputOrFortune') }"
+    requires:
+    - InputOrFortune

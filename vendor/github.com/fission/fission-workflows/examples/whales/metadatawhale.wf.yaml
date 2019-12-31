@@ -1,0 +1,14 @@
+# Metadatawhale shows off how to add metadata (e.g. headers, query) to your fission function
+#
+# Usage examples:
+# fission fn test --name metadatawhale
+# fission fn test --name metadatawhale -H 'Prefix: The fortune says...  ' -H 'Postfix: ...but where is the whale?'
+output: WrapFortune
+tasks:
+  GenerateFortune:
+    run: fortune
+  WrapFortune:
+    run: compose
+    inputs: "{ (param('headers').Prefix || '') + output('GenerateFortune') + (param('headers').Postfix || '') }"
+    requires:
+    - GenerateFortune

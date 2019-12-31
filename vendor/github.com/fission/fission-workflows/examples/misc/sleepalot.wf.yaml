@@ -1,0 +1,47 @@
+# Sleepalot demonstrates how you can make various task depend on each other, to do fan-outs,
+# fan-ins, parallel execution, and force serial execution.
+#
+# Example usage: fission fn test --name sleepalot
+apiVersion: 1
+output: F # Currently there needs to be an output task, even if there is no output
+tasks:
+  A:
+    run: sleep
+    inputs: 10s
+  B:
+    run: sleep
+    inputs: 5s
+    requires:
+    - A
+  C:
+    run: sleep
+    inputs: 5s
+    requires:
+    - B
+  D1:
+    run: sleep
+    inputs: 5s
+    requires:
+    - C
+  D2:
+    run: sleep
+    inputs: 10s
+    requires:
+    - C
+  D3:
+    run: sleep
+    inputs: 20s
+    requires:
+    - C
+  E:
+    run: sleep
+    inputs: 5s
+    requires:
+    - D1
+    - D2
+    - D3
+  F:
+    run: sleep
+    inputs: 5s
+    requires:
+    - E

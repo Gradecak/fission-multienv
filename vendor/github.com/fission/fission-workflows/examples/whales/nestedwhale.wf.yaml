@@ -1,0 +1,15 @@
+# Nestedwhale shows of how to call other workflows from a workflow
+# (surprise! There is no difference with regular functions)
+#
+# Usage example: fission fn test --name nestedwhale
+apiVersion: 1
+output: WhaleIt
+tasks:
+  GenerateFortune:
+    run: fortune
+
+  WhaleIt:
+    run: echowhale
+    inputs: "{ output('GenerateFortune') }"
+    requires:
+    - GenerateFortune

@@ -1,0 +1,20 @@
+# scopedwhale shows of how to nest workflows into each other
+#
+# Usage example: fission fn test --name scopedwhale
+apiVersion: 1
+output: MyScope
+tasks:
+  MyScope:
+    run: noop
+    inputs:
+      default:
+        output: WhaleIt
+        tasks:
+          GenerateFortune:
+            run: fortune
+          WhaleIt:
+            run: whalesay
+            inputs:
+              body: "{ output('GenerateFortune') }"
+            requires:
+            - GenerateFortune
